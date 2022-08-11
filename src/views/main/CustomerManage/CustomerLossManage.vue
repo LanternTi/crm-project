@@ -24,8 +24,64 @@
                     <vxe-button type="submit" status="primary" content="查询"></vxe-button>
                 </template>
                 <template #operate="{ row }">
-                    <vxe-button size="mini" content="暂缓流失" status="warning" round @click="">
+                    <vxe-button size="mini" content="暂缓流失" status="warning" round @click="openModal(1)"
+                        v-if="row.lstStatus != 3">
                     </vxe-button>
+                    <vxe-button size="mini" content="确认流失" status="danger" round @click="openModal(2)"
+                        v-if="row.lstStatus != 3">
+                    </vxe-button>
+                    <vxe-button size="mini" content="查看" status="success" round @click="openModal(3)"
+                        v-if="row.lstStatus == 3">
+                    </vxe-button>
+                    <vxe-modal v-model="modalStatus" show-footer :draggable="false" width="50%" :title=modalTitle
+                        @confirm="editByForm(row)">
+                        <template #default>
+                            <vxe-form :data="row" title-align="right" custom-layout>
+                                <vxe-form-item title="客户编号:" field="lstCustNo" :span=12>
+                                    <template #default>
+                                        <vxe-input v-model="row.lstCustNo" placeholder="请输入条目" disabled>
+                                        </vxe-input>
+                                    </template>
+                                </vxe-form-item>
+                                <vxe-form-item title="客户名字:" field="lstCustName" :span=12>
+                                    <template #default>
+                                        <vxe-input v-model="row.lstCustName" placeholder="请输入条目" disabled>
+                                        </vxe-input>
+                                    </template>
+                                </vxe-form-item>
+                                <vxe-form-item title="客户经理姓名:" field="lstCustManagerName" :span=12>
+                                    <template #default>
+                                        <vxe-input v-model="row.lstCustManagerName" placeholder="请输入值" disabled>
+                                        </vxe-input>
+                                    </template>
+                                </vxe-form-item>
+                                <vxe-form-item title="最后下单时间:" field="lstLastOrderDate" :span=12>
+                                    <template #default>
+                                        <el-date-picker v-model="row.lstLastOrderDate" type="date" disabled />
+                                    </template>
+                                </vxe-form-item>
+                                <vxe-form-item title="暂缓措施:" field="lstDelay" :span=12>
+                                    <template #default>
+                                        <el-input v-model="row.lstDelay" :rows="2" type="textarea"
+                                            placeholder="Please input" disabled />
+                                    </template>
+                                </vxe-form-item>
+                                <vxe-form-item title="追加暂缓措施:" field="lstDelay" :span=12
+                                    v-if="formVisible.appendsLstDelay">
+                                    <template #default>
+                                        <el-input v-model="row.lstDelay" :rows="2" type="textarea"
+                                            placeholder="请输入措施" />
+                                    </template>
+                                </vxe-form-item>
+                                <vxe-form-item title="流失原因:" field="lstReason" :span=12 v-if="formVisible.addReason">
+                                    <template #default>
+                                        <el-input v-model="row.lstReason" :rows="2" type="textarea" placeholder="请输入措施"
+                                            :disabled="formVisible.inputDis" />
+                                    </template>
+                                </vxe-form-item>
+                            </vxe-form>
+                        </template>
+                    </vxe-modal>
                 </template>
             </vxe-grid>
         </div>
@@ -35,10 +91,16 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue';
 import { VxeGridProps, VxeGridInstance } from 'vxe-table'
-import { lostInfoByLike } from '@/api/cstLost'
+import { lostInfoByLike, editLostInfo } from '@/api/cstLost'
 import { ElMessage } from 'element-plus'
 
 var modalStatus = ref(false)
+var modalTitle = ref('')
+var formVisible = reactive({
+    appendsLstDelay: true,
+    addReason: false,
+    inputDis: true
+})
 
 const lostStatus = ref([
     { value: '', label: '全部' },
@@ -52,7 +114,7 @@ const gridOptions = reactive<VxeGridProps>({
     showOverflow: 'tooltip',
     height: 530,
     rowConfig: {
-        keyField: 'productId',
+        keyField: 'lstCustNo',
         isHover: true
     },
     columnConfig: {
@@ -67,10 +129,10 @@ const gridOptions = reactive<VxeGridProps>({
     formConfig: {
         align: "left",
         items: [
-            { field: 'lstCustName', title: '客户名称', span: 8, itemRender: {}, slots: { default: 'svrCustName_item' } },
-            { field: 'lstCustManagerName', title: '客户经理', span: 8, itemRender: {}, slots: { default: 'svrTitle_item' } },
-            { field: 'lstStatus', title: '类型', span: 8, itemRender: {}, slots: { default: 'svrType_item' } },
-            { itemRender: {}, slots: { default: 'submit_item' } }
+            { span: 7, field: 'lstCustName', title: '客户名称', itemRender: {}, slots: { default: 'svrCustName_item' } },
+            { span: 8, field: 'lstCustManagerName', title: '客户经理', itemRender: {}, slots: { default: 'svrTitle_item' } },
+            { span: 7, field: 'lstStatus', title: '类型', itemRender: {}, slots: { default: 'svrType_item' } },
+            { span: 2, itemRender: {}, slots: { default: 'submit_item' } }
         ]
     },
     columns: [
@@ -79,8 +141,18 @@ const gridOptions = reactive<VxeGridProps>({
         { field: 'lstCustManagerName', title: '客户经理' },
         { field: 'lstLastOrderDate', title: '最后下单时间' },
         { field: 'lstLostDate', title: '确认流失时间' },
-        { field: 'lstStatus', title: '状态' },
-        { title: '操作', width: 100, slots: { default: 'operate' } }
+        {
+            field: 'lstStatus', title: '状态', formatter({ cellValue }) {
+                if (cellValue == 1) {
+                    return '预警'
+                } else if (cellValue == 2) {
+                    return '暂缓流失'
+                } else {
+                    return '确认流失'
+                }
+            }
+        },
+        { title: '操作', width: 200, slots: { default: 'operate' } }
     ],
     proxyConfig: {
         form: true,
@@ -110,6 +182,38 @@ const gridOptions = reactive<VxeGridProps>({
         }
     }
 })
+
+const editByForm = async (row: any) => {
+    editLostInfo(row).then((result) => {
+        if (result == "修改成功") {
+            ElMessage({
+                message: result,
+                type: 'success',
+            })
+        } else {
+            ElMessage.error(result)
+        }
+        xGrid.value?.commitProxy('query')
+    })
+}
+const openModal = (id: number) => {
+    if (id == 1) {
+        modalTitle.value = '暂缓流失'
+        formVisible.appendsLstDelay = true
+        formVisible.addReason = false
+    } else if (id == 2) {
+        modalTitle.value = '确认流失'
+        formVisible.appendsLstDelay = false
+        formVisible.addReason = true
+        formVisible.inputDis = false
+    } else {
+        modalTitle.value = '确认流失'
+        formVisible.addReason = true
+        formVisible.appendsLstDelay = false
+        formVisible.inputDis = true
+    }
+    modalStatus.value = true
+}
 
 </script>
 
