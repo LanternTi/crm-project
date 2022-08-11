@@ -1,8 +1,8 @@
 <template>
     <div>
         <div style="box-shadow: 0 2px 12px 0 rgba(0,0,0,0.1);padding-left: 1rem;">
-            <el-descriptions title="客户流失管理">
-                <el-descriptions-item label="客户流失管理显示即将流失的客户信息，并制定挽救措施"></el-descriptions-item>
+            <el-descriptions title="客户信息管理">
+                <el-descriptions-item label="维护客户信息，记录客户联系电话和交往记录"></el-descriptions-item>
             </el-descriptions>
         </div>
         <div class="padding-box" style="box-shadow: 0 2px 12px 0 rgba(0,0,0,0.1)">
