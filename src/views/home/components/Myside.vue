@@ -4,7 +4,7 @@
             <h2>CRM Admin</h2>
             <el-menu class="el-menu-vertical-demo" router :default-active="route.path" background-color="#001529"
                 text-color="#9ca4ab" active-text-color="#ffffff" unique-opened>
-                <el-sub-menu index="1">
+                <el-sub-menu index="1" v-if="user.userRoleId != 4">
                     <template #title>
                         <span>营销管理</span>
                     </template>
@@ -17,7 +17,7 @@
                         </el-menu-item>
                     </el-menu-item-group>
                 </el-sub-menu>
-                <el-sub-menu index="2">
+                <el-sub-menu index="2" v-if="user.userRoleId == 3 || user.userRoleId == 1">
                     <template #title>
                         <span>客户管理</span>
                     </template>
@@ -30,7 +30,7 @@
                         </el-menu-item>
                     </el-menu-item-group>
                 </el-sub-menu>
-                <el-sub-menu index="3">
+                <el-sub-menu index="3" v-if="user.userRoleId != 4">
                     <template #title>
                         <span>服务管理</span>
                     </template>
@@ -52,7 +52,7 @@
                         </el-menu-item>
                     </el-menu-item-group>
                 </el-sub-menu>
-                <el-sub-menu index="4">
+                <el-sub-menu index="4" v-if="user.userRoleId != 3">
                     <template #title>
                         <span>统计报表</span>
                     </template>
@@ -71,7 +71,7 @@
                         </el-menu-item>
                     </el-menu-item-group>
                 </el-sub-menu>
-                <el-sub-menu index="5">
+                <el-sub-menu index="5" v-if="user.userRoleId == 1">
                     <template #title>
                         <span>基础数据</span>
                     </template>
@@ -92,9 +92,14 @@
     </el-container>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { useRoute } from 'vue-router'
+import { storeToRefs } from 'pinia'
+import { useMainStore } from "@/store"
 const route = useRoute()
+
+const mainStore = useMainStore()
+const { user } = storeToRefs(mainStore);
 </script>
 
 <style lang="css">

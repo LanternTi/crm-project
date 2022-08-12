@@ -182,16 +182,42 @@
                                 </vxe-button>
                             </vxe-form>
                             <vxe-table border show-header-overflow show-overflow="tooltip"
-                                :row-config="{ isHover: true }" :data="contactData">
-                                <vxe-column field="lkmName" title="姓名"></vxe-column>
-                                <vxe-column field="lkmSex" title="性别"></vxe-column>
-                                <vxe-column field="lkmPostion" title="职位"></vxe-column>
-                                <vxe-column field="lkmTel" title="固定电话"></vxe-column>
-                                <vxe-column field="lkmMobile" title="手机号码"></vxe-column>
-                                <vxe-column field="lkmMemo" title="备注"></vxe-column>
+                                :row-config="{ isHover: true }" :data="contactData"
+                                :edit-config="{ trigger: 'click', mode: 'cell' }">
+                                <vxe-column field="lkmName" title="姓名" :edit-render="{}">
+                                    <template #edit="{ row }">
+                                        <vxe-input v-model="row.lkmName" type="text"></vxe-input>
+                                    </template>
+                                </vxe-column>
+                                <vxe-column field="lkmSex" title="性别" :edit-render="{}">
+                                    <template #edit="{ row }">
+                                        <vxe-input v-model="row.lkmSex" type="text"></vxe-input>
+                                    </template>
+                                </vxe-column>
+                                <vxe-column field="lkmPostion" title="职位">
+                                    <template #edit="{ row }">
+                                        <vxe-input v-model="row.lkmPostion" type="text"></vxe-input>
+                                    </template>
+                                </vxe-column>
+                                <vxe-column field="lkmTel" title="固定电话" :edit-render="{}">
+                                    <template #edit="{ row }">
+                                        <vxe-input v-model="row.lkmTel" type="text"></vxe-input>
+                                    </template>
+                                </vxe-column>
+                                <vxe-column field="lkmMobile" title="手机号码" :edit-render="{}">
+                                    <template #edit="{ row }">
+                                        <vxe-input v-model="row.lkmMobile" type="text"></vxe-input>
+                                    </template>
+                                </vxe-column>
+                                <vxe-column field="lkmMemo" title="备注" :edit-render="{}">
+                                    <template #edit="{ row }">
+                                        <vxe-input v-model="row.lkmMemo" type="text"></vxe-input>
+                                    </template>
+                                </vxe-column>
                                 <vxe-column title="操作">
                                     <template #default="{ row }">
-                                        <vxe-button status="success" size="mini" content="编辑" @click="" round>
+                                        <vxe-button status="success" size="mini" content="编辑" @click="editContact(row)"
+                                            round>
                                         </vxe-button>
                                         <el-popconfirm title="确定要删除吗?" confirm-button-text="确认" cancel-button-text="取消"
                                             @confirm="delContact(row.lkmId)">
@@ -227,22 +253,33 @@
                                 </vxe-button>
                             </vxe-form>
                             <vxe-table border show-header-overflow show-overflow="tooltip"
-                                :row-config="{ isHover: true }" :data="activeData">
-                                <vxe-column field="atvDate" title="时间"></vxe-column>
-                                <vxe-column field="atvPlace" title="地点"></vxe-column>
-                                <vxe-column field="atvTitle" title="概要"></vxe-column>
-                                <vxe-column field="atvDesc" title="详细信息"></vxe-column>
-                                <vxe-column title="操作">
+                                :row-config="{ isHover: true }" :data="activeData"
+                                :edit-config="{ trigger: 'click', mode: 'cell' }">
+                                <vxe-column field="atvDate" title="时间" :edit-render="{}">
+                                    <template #edit="{ row }">
+                                        <el-date-picker v-model="row.atvDate" type="date" value-format="YYYY-MM-DD" />
+                                    </template>
+                                </vxe-column>
+                                <vxe-column field="atvPlace" title="地点" :edit-render="{}">
+                                    <template #edit="{ row }">
+                                        <vxe-input v-model="row.atvPlace" type="text"></vxe-input>
+                                    </template>
+                                </vxe-column>
+                                <vxe-column field="atvTitle" title="概要" :edit-render="{}">
+                                    <template #edit="{ row }">
+                                        <vxe-input v-model="row.atvTitle" type="text"></vxe-input>
+                                    </template>
+                                </vxe-column>
+                                <vxe-column field="atvDesc" title="详细信息" :edit-render="{}">
+                                    <template #edit="{ row }">
+                                        <vxe-input v-model="row.atvDesc" type="text"></vxe-input>
+                                    </template>
+                                </vxe-column>
+                                <vxe-column title="操作" :width="90">
                                     <template #default="{ row }">
-                                        <vxe-button status="success" size="mini" content="编辑" @click="" round>
+                                        <vxe-button status="success" size="mini" content="编辑" @click="editActive(row)"
+                                            round>
                                         </vxe-button>
-                                        <el-popconfirm title="确定要删除吗?" confirm-button-text="确认" cancel-button-text="取消"
-                                            @confirm="delActive(row.atvId)">
-                                            <template #reference>
-                                                <vxe-button status="danger" size="mini" content="删除" round>
-                                                </vxe-button>
-                                            </template>
-                                        </el-popconfirm>
                                     </template>
                                 </vxe-column>
                             </vxe-table>
@@ -502,8 +539,8 @@ const addCust = async () => {
         }
     })
 }
-const delActive = async (id: number) => {
-    deleteCustomerInteraction(id).then((result: any) => {
+const delContact = async (id: number) => {
+    deleteCustomerContactsById(id).then((result: any) => {
         if (result == "删除成功") {
             ElMessage({
                 message: result,
@@ -515,9 +552,22 @@ const delActive = async (id: number) => {
         }
     })
 }
-const delContact = async (id: number) => {
-    deleteCustomerContactsById(id).then((result: any) => {
-        if (result == "删除成功") {
+const editContact = async (row: any) => {
+    updateCustomerContacts(row).then((result: any) => {
+        if (result == "修改成功") {
+            ElMessage({
+                message: result,
+                type: 'success',
+            })
+            xGrid.value?.commitProxy('query')
+        } else {
+            ElMessage.error(result)
+        }
+    })
+}
+const editActive = async (row: any) => {
+    UpdateCustomerInteraction(row).then((result: any) => {
+        if (result == "修改成功") {
             ElMessage({
                 message: result,
                 type: 'success',

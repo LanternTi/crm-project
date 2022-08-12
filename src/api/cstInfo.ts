@@ -91,7 +91,7 @@ export function selectCustomerInteractionInfo(data?: any) {
 //修改客户交往记录
 export function UpdateCustomerInteraction(data?: any) {
     return request.post({
-        url: 'customer/UpdateCustomerInteraction',
+        url: 'customer/updateCustomerInteraction',
         params: data
     })
 }

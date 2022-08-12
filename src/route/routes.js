@@ -8,6 +8,7 @@ const routes = [
     {
         path: "/home", component: () => import('views/home/index.vue'),
         children: [
+            { path: "/default", component: () => import('views/main/default.vue') },
             { path: "/salesManage", component: () => import('views/main/SalesManage/SalesManage.vue') },
             { path: "/customerExploitation", component: () => import('views/main/SalesManage/CustomerExploitation.vue') },
             { path: "/customerInfoManage", component: () => import('views/main/CustomerManage/CustomerInfoManage.vue') },
@@ -23,7 +24,8 @@ const routes = [
             { path: "/contribution", component: () => import('views/main/Reports/contribution.vue') },
             { path: "/constitute", component: () => import('views/main/Reports/constitute.vue') },
             { path: "/serve", component: () => import('views/main/Reports/serve.vue') },
-            { path: "/loss", component: () => import('views/main/Reports/loss.vue') }
+            { path: "/loss", component: () => import('views/main/Reports/loss.vue') },
+            { path: "/home", redirect: '/default' }
         ]
     },
     { path: "/", redirect: '/home' }
